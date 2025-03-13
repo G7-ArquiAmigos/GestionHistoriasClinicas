@@ -57,7 +57,7 @@ ROOT_URLCONF = 'GestionHistoriasClinicas.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'GestionHistoriasClinicas', 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'GestionHistoriasClinicas', 'Templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
