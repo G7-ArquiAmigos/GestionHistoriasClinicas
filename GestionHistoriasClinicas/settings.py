@@ -86,6 +86,8 @@ DATABASES = {
         'PORT': '',
     }
 }
+CSRF_TRUSTED_ORIGINS = ['http://10.128.0.2']
+
     
 
 
