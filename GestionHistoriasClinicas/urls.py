@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.decorators.csrf import csrf_exempt
 from . import views
 
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
     path('home/',views.home),
     path('historiaClinica/',include('HistoriaClinica.urls')),
     path('', views.index),
+    path('health-check/', views.healthCheck),
 ]
