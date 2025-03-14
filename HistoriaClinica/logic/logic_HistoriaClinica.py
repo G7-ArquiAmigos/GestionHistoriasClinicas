@@ -4,3 +4,7 @@ def get_historiasClinicas():
 def get_HistoriaClinica():
     queryset = HistoriaClinica.objects.all().order_by('-id')[:10]
     return (queryset)
+def create_historia(form):
+    historia = form.save()
+    historia.save()
+    return ()
