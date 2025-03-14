@@ -6,4 +6,5 @@ def home(request):
     return HttpResponse("Hello, Django!")
 def index(request):
     return render(request, 'index.html')
-# Create your views here.
+def healthCheck(request):
+    return HttpResponse('ok')
