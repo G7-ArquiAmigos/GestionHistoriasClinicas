@@ -87,7 +87,7 @@ DATABASES = {
     }
 }
 CSRF_TRUSTED_ORIGINS = ['http://10.128.0.2']
-
+CSRF_COOKIE_SECURE = False
     
 
 
