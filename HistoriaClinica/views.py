@@ -20,14 +20,15 @@ def historias_clinicas_view(request):
         historias_dto = serializers.serialize('json', historias)
         return HttpResponse(historias_dto, content_type='application/json')
     
-
+@csrf_exempt
 def HistoriasClinicas_list(request):
     HistoriasClinicas = get_HistoriaClinica()
     context = {
         'HistoriasClinicas_list': HistoriasClinicas
     }
     return render(request, 'HistoriaCLinica/historiaclinica.html', context)
-    
+
+@csrf_exempt
 def historias_create(request):
     if request.method == 'POST':
         form = HistoriaForm(request.POST)
