@@ -8,3 +8,6 @@ def create_historia(form):
     historia = form.save()
     historia.save()
     return ()
+def get_historia_by_id(id):
+    queryset = HistoriaClinica.objects.get(id=id)
+    return (queryset)
