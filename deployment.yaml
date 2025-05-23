@@ -105,7 +105,7 @@ resources:
       sourceSubnetworkIpRangesToNat: ALL_SUBNETWORKS_ALL_IP_RANGES
 
 
-# Kong instance
+# Kong instance solo de balanceador
 - type: compute.v1.instance
   name: cbd-kong-instance
   properties:
@@ -150,6 +150,7 @@ resources:
     metadata:
       items:
       - key: startup-script
+      ## que sucede aqui?
         value: |
           #!/bin/bash
           sudo apt-get update
