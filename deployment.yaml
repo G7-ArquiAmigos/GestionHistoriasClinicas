@@ -278,7 +278,7 @@ resources:
       autoDelete: true
       initializeParams:
         sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces N:
+    networkInterfaces::
     - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
       networkIP: 10.128.0.85
       #que es?
@@ -314,7 +314,7 @@ resources:
       autoDelete: true
       initializeParams:
         sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces N:
+    networkInterfaces::
     - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
       networkIP: 10.128.0.84
       
@@ -349,7 +349,7 @@ resources:
       autoDelete: true
       initializeParams:
         sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces N:
+    networkInterfaces::
     - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
       networkIP: 10.128.0.86
       
@@ -381,7 +381,7 @@ resources:
       autoDelete: true
       initializeParams:
         sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces N:
+    networkInterfaces::
     - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
       networkIP: 10.128.0.87
       
@@ -413,7 +413,7 @@ resources:
       autoDelete: true
       initializeParams:
         sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces N:
+    networkInterfaces::
     - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
       networkIP: 10.128.0.88
    
@@ -446,7 +446,7 @@ resources:
       autoDelete: true
       initializeParams:
         sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces N:
+    networkInterfaces::
     - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
       networkIP: 10.128.0.90
       
