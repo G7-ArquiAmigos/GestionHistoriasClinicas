@@ -1,22 +1,8 @@
 resources:
   # Firewall rules
 
-  # Regla para exponer la VM interfaz al público (HTTP/HTTPS)
-  - name: msd-ui-firewall
-    type: compute.v1.firewall
-    properties:
-      network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      priority: 1000
-      direction: INGRESS
-      sourceRanges:
-        - 0.0.0.0/0
-      targetTags:
-        - msd-ui-service
-      allowed:
-        - IPProtocol: TCP
-          ports:
-            - 80
-            - 443
+
+
 
   # Regla para exponer Kong al público en el puerto 8000
   - name: msd-api-gateway
@@ -165,38 +151,7 @@ resources:
               echo "max_connections=2000" >> /etc/postgresql/12/main/postgresql.conf
               service postgresql restart
 
-  # Base de datos Evaluación Médica (sin IP pública)
-  - name: msd-evaluacion-medica-db
-    type: compute.v1.instance
-    properties:
-      zone: us-central1-a
-      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-      disks:
-        - deviceName: boot
-          type: PERSISTENT
-          boot: true
-          autoDelete: true
-          initializeParams:
-            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
-      networkInterfaces:
-        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-          networkIP: 10.128.0.53
-      tags:
-        items:
-          - msd-service-db
-      metadata:
-        items:
-          - key: startup-script
-            value: |
-              #!/bin/bash
-              apt-get update
-              apt-get install -y postgresql postgresql-contrib
-              sudo -u postgres psql -c "CREATE USER monitoring_user WITH PASSWORD 'isis2503';"
-              sudo -u postgres createdb -O monitoring_user monitoring_db
-              echo "host all all 0.0.0.0/0 trust" >> /etc/postgresql/12/main/pg_hba.conf
-              echo "listen_addresses='*'" >> /etc/postgresql/12/main/postgresql.conf
-              echo "max_connections=2000" >> /etc/postgresql/12/main/postgresql.conf
-              service postgresql restart
+  
 
   # Base de datos Gestión Pacientes (sin IP pública)
   - name: msd-gestion-paciente-db
@@ -378,33 +333,4 @@ resources:
               git clone https://github.com/G7-ArquiAmigos/GestionPacientes.git
               cd GestionPacientes
 
-  # VM de Interfaz (UI) con IP pública
-  - name: msd-interfaz-basica-ms
-    type: compute.v1.instance
-    properties:
-      zone: us-central1-a
-      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-      disks:
-        - deviceName: boot
-          type: PERSISTENT
-          boot: true
-          autoDelete: true
-          initializeParams:
-            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-      networkInterfaces:
-        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-          networkIP: 10.128.0.90
-          accessConfigs:
-            - name: External NAT
-              type: ONE_TO_ONE_NAT
-      tags:
-        items:
-          - msd-ui-service
-      metadata:
-        items:
-          - key: startup-script
-            value: |
-              #!/bin/bash
-              mkdir /home/labs
-              cd /home/labs
-              git clone https://github.com/G7-ArquiAmigos/InterfazBasica.git
+ 
