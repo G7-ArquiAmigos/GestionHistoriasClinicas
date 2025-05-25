@@ -455,7 +455,7 @@ resources:
         type: ONE_TO_ONE_NAT
     tags:
       items: 
-      - msd-services-firewall
+      - msd-ui-service
     metadata:
       items:
       - key: startup-script
