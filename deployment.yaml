@@ -1,467 +1,410 @@
-
-
-
 resources:
-# Firewall rules
+  # Firewall rules
 
-#regla interfaz
-- name: msd-ui-firewall
-  type: compute.v1.firewall
-  properties:
-    network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-    priority: 1000
-    direction: INGRESS
-    sourceRanges:
-      - 0.0.0.0/0
-    targetTags:
-      - msd-ui-service
-    allowed:
-      - IPProtocol: TCP
-        ports:
-          - 8000
+  # Regla para exponer la VM interfaz al público (HTTP/HTTPS)
+  - name: msd-ui-firewall
+    type: compute.v1.firewall
+    properties:
+      network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+      priority: 1000
+      direction: INGRESS
+      sourceRanges:
+        - 0.0.0.0/0
+      targetTags:
+        - msd-ui-service
+      allowed:
+        - IPProtocol: TCP
+          ports:
+            - 80
+            - 443
 
-# es la regla de firewall para las maquinas, tiene destino final esa misma
-- name: msd-api-gateway
-  type: compute.v1.firewall
-  properties:
-    network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-    priority: 1000
-    direction: INGRESS
-    sourceRanges: 
-    - 0.0.0.0/0
-    targetTags:
-    - msd-api-gateway
-    allowed:
-    - IPProtocol: TCP
-      ports: 
-      - 8000
+  # Regla para exponer Kong al público en el puerto 8000
+  - name: msd-api-gateway
+    type: compute.v1.firewall
+    properties:
+      network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+      priority: 1000
+      direction: INGRESS
+      sourceRanges:
+        - 0.0.0.0/0
+      targetTags:
+        - msd-api-gateway
+      allowed:
+        - IPProtocol: TCP
+          ports:
+            - 8000
 
-- name: msd-services-apps
-  type: compute.v1.firewall
-  properties:
-    network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-    priority: 1000
-    direction: INGRESS
-    sourceTags: 
-    - msd-api-gateway
-    targetTags:
-    - msd-services-firewall
-    allowed:
-    - IPProtocol: TCP
-      ports: 
-      - 8080
+  # Permite a Kong llamar a los microservicios en el puerto 8080
+  - name: msd-services-apps
+    type: compute.v1.firewall
+    properties:
+      network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+      priority: 1000
+      direction: INGRESS
+      sourceTags:
+        - msd-api-gateway
+      targetTags:
+        - msd-services-firewall
+      allowed:
+        - IPProtocol: TCP
+          ports:
+            - 8080
 
-- name: msd-services-apps-web
-  type: compute.v1.firewall
-  properties:
-    network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-    priority: 1000
-    direction: INGRESS
-    sourceRanges: 
-    - 0.0.0.0/0
-    targetTags:
-    - msd-services-firewall
-    allowed:
-    - IPProtocol: TCP
-      ports: 
-      - 8080
+  # Permite tráfico web directo a servicios públicos que corran en 8080
+  - name: msd-services-apps-web
+    type: compute.v1.firewall
+    properties:
+      network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+      priority: 1000
+      direction: INGRESS
+      sourceRanges:
+        - 0.0.0.0/0
+      targetTags:
+        - msd-services-firewall
+      allowed:
+        - IPProtocol: TCP
+          ports:
+            - 8080
 
-- name: msd-service-db
-  type: compute.v1.firewall
-  properties:
-    network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-    priority: 1000
-    direction: INGRESS
-    sourceTags: 
-    - msd-services-firewall
-    targetTags:
-    - msd-service-db
-    allowed:
-    - IPProtocol: TCP
-      ports: 
-      - 5432
+  # Permite a servicios internos hablar con las bases de datos en 5432
+  - name: msd-service-db
+    type: compute.v1.firewall
+    properties:
+      network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+      priority: 1000
+      direction: INGRESS
+      sourceTags:
+        - msd-services-firewall
+      targetTags:
+        - msd-service-db
+      allowed:
+        - IPProtocol: TCP
+          ports:
+            - 5432
 
-- name: msd-router
-  type: compute.v1.router
-  properties:
-    region: us-central1
-    network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-    nats:
-    - name: msd-nat
-      natIpAllocateOption: AUTO_ONLY
-      sourceSubnetworkIpRangesToNat: ALL_SUBNETWORKS_ALL_IP_RANGES
+  # NAT gateway para que VMs sin IP pública salgan a Internet
+  - name: msd-router
+    type: compute.v1.router
+    properties:
+      region: us-central1
+      network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+      nats:
+        - name: msd-nat
+          natIpAllocateOption: AUTO_ONLY
+          sourceSubnetworkIpRangesToNat: ALL_SUBNETWORKS_ALL_IP_RANGES
 
-             
-             
-# Kong instance
-- name: msd-kong-instance
-  type: compute.v1.instance
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.81
-      accessConfigs:
-      - name: External NAT
-        type: ONE_TO_ONE_NAT
-    tags:
-      items: 
-      - msd-api-gateway
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo mkdir /home/labs
-          cd /home/labs
-          sudo git clone https://github.com/G7-ArquiAmigos/GestionHistoriasClinicas.git
-          cd GestionHistoriasClinicas
-          docker network create kong-net
-          docker run -d --name kong --network=kong-net --restart=always \
-          -v "$(pwd):/kong/declarative/" -e "KONG_DATABASE=off" \
-          -e "KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml" \
-          -p 8000:8000 kong/kong-gateway
+  # Kong Gateway
+  - name: msd-kong-instance
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.81
+          accessConfigs:
+            - name: External NAT
+              type: ONE_TO_ONE_NAT
+      tags:
+        items:
+          - msd-api-gateway
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              mkdir /home/labs
+              cd /home/labs
+              git clone https://github.com/G7-ArquiAmigos/GestionHistoriasClinicas.git
+              cd GestionHistoriasClinicas
+              docker network create kong-net
+              docker run -d --name kong --network=kong-net --restart=always \
+                -v "$(pwd):/kong/declarative/" \
+                -e "KONG_DATABASE=off" \
+                -e "KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml" \
+                -p 8000:8000 \
+                kong/kong-gateway
 
+  # Base de datos Historia Clínicas (sin IP pública)
+  - name: msd-gestion-historia-clinica-db
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.52
+      tags:
+        items:
+          - msd-service-db
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              apt-get update
+              apt-get install -y postgresql postgresql-contrib
+              sudo -u postgres psql -c "CREATE USER monitoring_user WITH PASSWORD 'isis2503';"
+              sudo -u postgres createdb -O monitoring_user monitoring_db
+              echo "host all all 0.0.0.0/0 trust" >> /etc/postgresql/12/main/pg_hba.conf
+              echo "listen_addresses='*'" >> /etc/postgresql/12/main/postgresql.conf
+              echo "max_connections=2000" >> /etc/postgresql/12/main/postgresql.conf
+              service postgresql restart
 
-# Database instance
-- type: compute.v1.instance
-  name: msd-gestion-historias-clinicas-db
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.52
-    tags:
-      items: 
-      - msd-service-db
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo apt-get update
-          sudo apt-get install -y postgresql postgresql-contrib
-          sudo -u postgres psql -c "CREATE USER monitoring_user WITH PASSWORD 'isis2503';"
-          sudo -u postgres createdb -O monitoring_user monitoring_db
-          echo "host all all 0.0.0.0/0 trust" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
-          echo "listen_addresses='*'" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-          echo "max_connections=2000" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-          sudo service postgresql restart
+  # Base de datos Evaluación Médica (sin IP pública)
+  - name: msd-evaluacion-medica-db
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.53
+      tags:
+        items:
+          - msd-service-db
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              apt-get update
+              apt-get install -y postgresql postgresql-contrib
+              sudo -u postgres psql -c "CREATE USER monitoring_user WITH PASSWORD 'isis2503';"
+              sudo -u postgres createdb -O monitoring_user monitoring_db
+              echo "host all all 0.0.0.0/0 trust" >> /etc/postgresql/12/main/pg_hba.conf
+              echo "listen_addresses='*'" >> /etc/postgresql/12/main/postgresql.conf
+              echo "max_connections=2000" >> /etc/postgresql/12/main/postgresql.conf
+              service postgresql restart
 
-- type: compute.v1.instance
-  name: msd-evaluacion-medica-db
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.53
-    tags:
-      items: 
-      - msd-service-db
-    metadata:
-      items:
-      - key: startup-script
-      
-        value: |
-          #!/bin/bash
-          sudo apt-get update
-          sudo apt-get install -y postgresql postgresql-contrib
-          sudo -u postgres psql -c "CREATE USER monitoring_user WITH PASSWORD 'isis2503';"
-          sudo -u postgres createdb -O monitoring_user monitoring_db
-          echo "host all all 0.0.0.0/0 trust" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
-          echo "listen_addresses='*'" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-          echo "max_connections=2000" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-          sudo service postgresql restart
+  # Base de datos Gestión Pacientes (sin IP pública)
+  - name: msd-gestion-paciente-db
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.54
+      tags:
+        items:
+          - msd-service-db
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              apt-get update
+              apt-get install -y postgresql postgresql-contrib
+              sudo -u postgres psql -c "CREATE USER monitoring_user WITH PASSWORD 'isis2503';"
+              sudo -u postgres createdb -O monitoring_user monitoring_db
+              echo "host all all 0.0.0.0/0 trust" >> /etc/postgresql/12/main/pg_hba.conf
+              echo "listen_addresses='*'" >> /etc/postgresql/12/main/postgresql.conf
+              echo "max_connections=2000" >> /etc/postgresql/12/main/postgresql.conf
+              service postgresql restart
 
+  # Microservicio Historia Clínica (sin IP pública)
+  - name: msd-gestion-historia-clinica-ms
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.85
+      tags:
+        items:
+          - msd-services-firewall
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              mkdir /home/labs
+              cd /home/labs
+              git clone https://github.com/G7-ArquiAmigos/GestionHistoriasClinicas.git
+              cd GestionHistoriasClinicas
+              pip3 install -r requirements.txt
+              python3 manage.py makemigrations
+              python3 manage.py migrate
 
-- type: compute.v1.instance
-  name: msd-gestion-paciente-db
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.54
-    tags:
-      items: 
-      - msd-service-db
-    metadata:
-      items:
-      - key: startup-script
-      
-        value: |
-          #!/bin/bash
-          sudo apt-get update
-          sudo apt-get install -y postgresql postgresql-contrib
-          sudo -u postgres psql -c "CREATE USER monitoring_user WITH PASSWORD 'isis2503';"
-          sudo -u postgres createdb -O monitoring_user monitoring_db
-          echo "host all all 0.0.0.0/0 trust" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
-          echo "listen_addresses='*'" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-          echo "max_connections=2000" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-          sudo service postgresql restart
+  # Microservicio Evaluación Médica (sin IP pública)
+  - name: msd-evaluacion-medica-ms
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.84
+      tags:
+        items:
+          - msd-services-firewall
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              mkdir /home/labs
+              cd /home/labs
+              git clone https://github.com/G7-ArquiAmigos/EvaluacionMedica.git
+              cd EvaluacionMedica
 
-- type: compute.v1.instance
-  name: msd-diagnostico-medico-db
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.55
-    tags:
-      items: 
-      - msd-service-db
-    metadata:
-      items:
-      - key: startup-script
-      
-        value: |
-          #!/bin/bash
-          sudo apt-get update
-          sudo apt-get install -y postgresql postgresql-contrib
-          sudo -u postgres psql -c "CREATE USER monitoring_user WITH PASSWORD 'isis2503';"
-          sudo -u postgres createdb -O monitoring_user monitoring_db
-          echo "host all all 0.0.0.0/0 trust" | sudo tee -a /etc/postgresql/12/main/pg_hba.conf
-          echo "listen_addresses='*'" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-          echo "max_connections=2000" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-          sudo service postgresql restart
+  # Microservicio Diagnóstico Médico réplicas (sin IP pública)
+  - name: msd-diagnostico-medico-ms
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.86
+      tags:
+        items:
+          - msd-services-firewall
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              mkdir /home/labs
+              cd /home/labs
+              git clone https://github.com/G7-ArquiAmigos/DiagnosticoMedico.git
+              cd DiagnosticoMedico
 
+  - name: msd-diagnostico-medico-ms-2
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.87
+      tags:
+        items:
+          - msd-services-firewall
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              mkdir /home/labs
+              cd /home/labs
+              git clone https://github.com/G7-ArquiAmigos/DiagnosticoMedico.git
+              cd DiagnosticoMedico
 
-# Service instances
-- name: msd-gestion-historia-clinica-ms
-  type: compute.v1.instance
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.85
-      #que es?
-      accessConfigs:
-      - name: ExternalAT
-        type: ONE_TO_ONE_NAT
-    tags:
-      items: 
-      - msd-services-firewall
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo mkdir /home/labs
-          cd /home/labs
-          sudo git clone https://github.com/G7-ArquiAmigos/GestionHistoriasClinicas.git
-          cd GestionHistoriasClinicas
-          sudo pip3 install -r requirements.txt
-          sudo python3 manage.py makemigrations
-          sudo python3 manage.py migrate
+  # Microservicio Gestión Pacientes (sin IP pública)
+  - name: msd-gestion-pacientes-ms
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.88
+      tags:
+        items:
+          - msd-services-firewall
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              mkdir /home/labs
+              cd /home/labs
+              git clone https://github.com/G7-ArquiAmigos/GestionPacientes.git
+              cd GestionPacientes
 
-
-- name: msd-evaluacion-medica-ms
-  type: compute.v1.instance
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.84
-      
-      accessConfigs:
-      - name: ExternalAT
-        type: ONE_TO_ONE_NAT
-    tags:
-      items: 
-      - msd-services-firewall
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo mkdir /home/labs
-          cd /home/labs
-          sudo git clone https://github.com/G7-ArquiAmigos/EvaluacionMedica.git
-          cd EvaluacionMedica
-
-
-
-
-- name: msd-diagnostico-medico-ms
-  type: compute.v1.instance
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.86
-      
-      accessConfigs:
-      - name: ExternalAT
-        type: ONE_TO_ONE_NAT
-    tags:
-      items: 
-      - msd-services-firewall
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo mkdir /home/labs
-          cd /home/labs
-          sudo git clone https://github.com/G7-ArquiAmigos/DiagnosticoMedico.git
-          cd DiagnosticoMedico
-
-- name: msd-diagnostico-medico-ms-2
-  type: compute.v1.instance
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.87
-      
-      accessConfigs:
-      - name: ExternalAT
-        type: ONE_TO_ONE_NAT
-    tags:
-      items: 
-      - msd-services-firewall
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo mkdir /home/labs
-          cd /home/labs
-          sudo git clone https://github.com/G7-ArquiAmigos/DiagnosticoMedico.git
-          cd DiagnosticoMedico
-
-- name: msd-gestion-pacientes-ms
-  type: compute.v1.instance
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.88
-   
-      accessConfigs:
-      - name: ExternalAT
-        type: ONE_TO_ONE_NAT
-    tags:
-      items: 
-      - msd-services-firewall
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo mkdir /home/labs
-          cd /home/labs
-          sudo git clone https://github.com/G7-ArquiAmigos/GestionPacientes.git
-          cd GestionPacientes
-
-
-- name: msd-interfaz-basica-ms
-  type: compute.v1.instance
-  properties:
-    zone: us-central1-a
-    machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
-      networkIP: 10.128.0.90
-      
-      accessConfigs:
-      - name: ExternalAT
-        type: ONE_TO_ONE_NAT
-    tags:
-      items: 
-      - msd-ui-service
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo mkdir /home/labs
-          cd /home/labs
-          sudo git clone https://github.com/G7-ArquiAmigos/InterfazBasica.git
-          
+  # VM de Interfaz (UI) con IP pública
+  - name: msd-interfaz-basica-ms
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+      networkInterfaces:
+        - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
+          networkIP: 10.128.0.90
+          accessConfigs:
+            - name: External NAT
+              type: ONE_TO_ONE_NAT
+      tags:
+        items:
+          - msd-ui-service
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              mkdir /home/labs
+              cd /home/labs
+              git clone https://github.com/G7-ArquiAmigos/InterfazBasica.git
