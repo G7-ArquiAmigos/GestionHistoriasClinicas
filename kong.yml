@@ -1,51 +1,61 @@
 _format_version: "2.1"
 
 services:
-  - host: monitoring_upstream
-    name: monitoring_service
+  - name: evaluacionMedica_service
+    host: evaluacionMedica_upstream
     protocol: http
     routes:
-      
-      - name: monitoring
+      - name: evaluacionMedica
         paths:
-          - /
+          - /evaluacionMedica
         strip_path: false
 
-  - host: alarms_upstream
-    name: alarms_service
+  - name: historiaClinica_service
+    host: historiaClinica_upstream
     protocol: http
     routes:
-      
-      - name: alarms
+      - name: historiaClinica
         paths:
-          - /alarms
-          - /alarmsValidate/
+          - /historiaClinica
         strip_path: false
+  - name: diagnosticoMedico_service
+    host: diagnosticoMedico_upstream
+    protocol: http
+    routes:
+      - name: diagnosticoMedico
+        paths:
+          - /diagnostico
+        strip_path: false
+
+  - name: gestionPacientes_service
+    host: gestionPacientes_upstream
+    protocol: http
+    routes:
+      - name: pacientes
+        paths:
+          - /pacientes
+        strip_path: false
+
     
 upstreams:
-  - name: alarms_upstream
+  - name: evaluacionMedica_upstream
     targets:
-      - target: <ip-privada-alarms-app-a>:8080
+      - target: 10.128.0.84:8080
         weight: 100
-      - target: <ip-privada-alarms-app-b>:8080
-        weight: 100
-      - target: <ip-privada-alarms-app-c>:8080
-        weight: 100
-    #healthchecks:
-    #  threshold: 0
-    #  active:
-    #    http_path: /health/
-    #    timeout: 0
-    #    healthy:
-    #      successes: 0
-    #      interval: 0
-    #    unhealthy:
-    #      tcp_failures: 0
-    #      interval: 0
 
-  - name: monitoring_upstream
+  - name: historiaClinica_upstream
     targets:
-      - target: <ip-privada-monitoring-app>:8080
+      - target: 10.128.0.85:8080
         weight: 100
 
-
+  - name: diagnosticoMedico_upstream
+    targets:
+      - target: 10.128.0.86:8080
+        weight: 100
+      - target: 10.128.0.87:8080
+        weight: 100
+  - name: gestionPacientes_upstream
+    targets:
+      - target: 10.128.0.88:8080
+        weight: 100
+     
