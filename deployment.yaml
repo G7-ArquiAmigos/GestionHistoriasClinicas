@@ -434,7 +434,7 @@ resources:
           cd GestionPacientes
 
 
-- name: msd-gestionHistoriaClinica-ms
+- name: msd-InterfazBasica-ms
   type: compute.v1.instance
   properties:
     zone: us-central1-a
