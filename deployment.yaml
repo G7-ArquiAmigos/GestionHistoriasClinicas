@@ -133,7 +133,7 @@ resources:
 
 # Database instance
 - type: compute.v1.instance
-  name: msd-gestionHistoriasClinicas-db
+  name: msd-gestion-historias-clinicas-db
   properties:
     zone: us-central1-a
     machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
@@ -165,7 +165,7 @@ resources:
           sudo service postgresql restart
 
 - type: compute.v1.instance
-  name: msd-evaluacionMedica-db
+  name: msd-evaluacion-medica-db
   properties:
     zone: us-central1-a
     machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
@@ -199,7 +199,7 @@ resources:
 
 
 - type: compute.v1.instance
-  name: msd-gestionPaciente-db
+  name: msd-gestion-paciente-db
   properties:
     zone: us-central1-a
     machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
@@ -232,7 +232,7 @@ resources:
           sudo service postgresql restart
 
 - type: compute.v1.instance
-  name: msd-diagnosticoMedico-db
+  name: msd-diagnostico-medico-db
   properties:
     zone: us-central1-a
     machineType: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/zones/us-central1-a/machineTypes/e2-micro
@@ -266,7 +266,7 @@ resources:
 
 
 # Service instances
-- name: msd-gestionHistoriaClinica-ms
+- name: msd-gestion-historia-clinica-ms
   type: compute.v1.instance
   properties:
     zone: us-central1-a
@@ -302,7 +302,7 @@ resources:
           sudo python3 manage.py migrate
 
 
-- name: msd-evaluacionMedica-ms
+- name: msd-evaluacion-medica-ms
   type: compute.v1.instance
   properties:
     zone: us-central1-a
@@ -337,7 +337,7 @@ resources:
 
 
 
-- name: msd-DiagnosticoMedico-ms
+- name: msd-diagnostico-medico-ms
   type: compute.v1.instance
   properties:
     zone: us-central1-a
@@ -369,7 +369,7 @@ resources:
           sudo git clone https://github.com/G7-ArquiAmigos/DiagnosticoMedico.git
           cd DiagnosticoMedico
 
-- name: msd-DiagnosticoMedico-ms-2
+- name: msd-diagnostico-medico-ms-2
   type: compute.v1.instance
   properties:
     zone: us-central1-a
@@ -401,7 +401,7 @@ resources:
           sudo git clone https://github.com/G7-ArquiAmigos/DiagnosticoMedico.git
           cd DiagnosticoMedico
 
-- name: msd-GestionPacientes-ms
+- name: msd-gestion-pacientes-ms
   type: compute.v1.instance
   properties:
     zone: us-central1-a
@@ -434,7 +434,7 @@ resources:
           cd GestionPacientes
 
 
-- name: msd-InterfazBasica-ms
+- name: msd-interfaz-basica-ms
   type: compute.v1.instance
   properties:
     zone: us-central1-a
