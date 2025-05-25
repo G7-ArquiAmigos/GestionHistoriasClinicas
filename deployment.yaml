@@ -118,8 +118,8 @@ resources:
                 -p 8000:8000 \
                 kong/kong-gateway
 
-  # Base de datos Historia Clínicas (sin IP pública)
-  - name: msd-gestion-historia-clinica-db
+  
+  - name: msd-evaluacion-historia-clinica-db
     type: compute.v1.instance
     properties:
       zone: us-central1-a
@@ -154,7 +154,7 @@ resources:
   
 
   # Base de datos Gestión Pacientes (sin IP pública)
-  - name: msd-gestion-paciente-db
+  - name: msd-diagnostico-paciente-db
     type: compute.v1.instance
     properties:
       zone: us-central1-a
