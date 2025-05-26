@@ -91,7 +91,7 @@ resources:
           boot: true
           autoDelete: true
           initializeParams:
-            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
       networkInterfaces:
         - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
           networkIP: 10.128.0.81
@@ -198,7 +198,7 @@ resources:
           boot: true
           autoDelete: true
           initializeParams:
-            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
       networkInterfaces:
         - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
           networkIP: 10.128.0.85
@@ -230,7 +230,7 @@ resources:
           boot: true
           autoDelete: true
           initializeParams:
-            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
       networkInterfaces:
         - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
           networkIP: 10.128.0.84
@@ -259,7 +259,7 @@ resources:
           boot: true
           autoDelete: true
           initializeParams:
-            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
       networkInterfaces:
         - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
           networkIP: 10.128.0.86
@@ -287,7 +287,7 @@ resources:
           boot: true
           autoDelete: true
           initializeParams:
-            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
       networkInterfaces:
         - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
           networkIP: 10.128.0.87
@@ -316,7 +316,7 @@ resources:
           boot: true
           autoDelete: true
           initializeParams:
-            sourceImage: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-101-17162-463-8
+            sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
       networkInterfaces:
         - network: https://www.googleapis.com/compute/v1/projects/s2-g7-sprint4/global/networks/default
           networkIP: 10.128.0.88
