@@ -18,6 +18,7 @@ services:
         paths:
           - /historiaClinica
         strip_path: false
+        
   - name: diagnosticoMedico_service
     host: diagnosticoMedico_upstream
     protocol: http
@@ -31,10 +32,11 @@ services:
     host: gestionPacientes_upstream
     protocol: http
     routes:
-      - name: all_routes
+      - name: gestionPacientes
         paths:
-          - /
-        strip_path: false
+          - /gestionPacientes
+        strip_path: true  
+
 
     
 upstreams:
