@@ -31,9 +31,9 @@ services:
     host: gestionPacientes_upstream
     protocol: http
     routes:
-      - name: pacientes
+      - name: all_routes
         paths:
-          - /pacientes
+          - /
         strip_path: false
 
     
