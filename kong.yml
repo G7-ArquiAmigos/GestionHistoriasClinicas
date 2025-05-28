@@ -35,7 +35,7 @@ services:
       - name: gestionPacientes
         paths:
           - /gestionPacientes
-        strip_path: true  
+        strip_path: false  
 
 
     
