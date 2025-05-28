@@ -27,24 +27,14 @@ services:
           - /diagnostico
         strip_path: false
 
+
   - name: gestionPacientes_service
-    host: gestionPacientes_upstream
-    protocol: http
+    url: http://10.128.0.88:8080
     routes:
       - name: all_routes
         paths:
           - /
         strip_path: false
-
-  - name: gestionPacientes_service
-    url: http://10.128.0.88:8080
-    routes:
-      - name: django-route
-        paths:
-          - /
-        strip_path: false
-        protocols:
-          - https
 
     
 upstreams:
