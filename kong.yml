@@ -36,6 +36,16 @@ services:
           - /
         strip_path: false
 
+  - name: gestionPacientes_service
+    url: http://10.128.0.88:8080
+    routes:
+      - name: django-route
+        paths:
+          - /
+        strip_path: false
+        protocols:
+          - https
+
     
 upstreams:
   - name: evaluacionMedica_upstream
@@ -54,8 +64,5 @@ upstreams:
         weight: 100
       - target: 10.128.0.87:8080
         weight: 100
-  - name: gestionPacientes_upstream
-    targets:
-      - target: 10.128.0.88:8080
-        weight: 100
+
      
