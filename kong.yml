@@ -27,9 +27,9 @@ services:
           - /diagnostico
         strip_path: false
 
-
   - name: gestionPacientes_service
-    url: http://10.128.0.88:8080
+    host: gestionPacientes_upstream
+    protocol: http
     routes:
       - name: all_routes
         paths:
@@ -54,5 +54,8 @@ upstreams:
         weight: 100
       - target: 10.128.0.87:8080
         weight: 100
-
+  - name: gestionPacientes_upstream
+    targets:
+      - target: 10.128.0.88:8080
+        weight: 100
      
