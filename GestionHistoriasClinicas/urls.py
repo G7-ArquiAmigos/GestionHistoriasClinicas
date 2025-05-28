@@ -23,7 +23,5 @@ urlpatterns = [
     path('home/',views.home),
     path('historiaClinica/',include('HistoriaClinica.urls')),
     path('', views.index),
-    path('',include('Examen.urls')),
-    path('',include('EventoMedico.urls')),
     path('health-check/', views.healthCheck),
 ]
