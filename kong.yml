@@ -58,6 +58,6 @@ upstreams:
         weight: 100
   - name: gestionPacientes_upstream
     targets:
-      - target: 10.128.0.88:8080
+      - target: 35.223.197.29:8080
         weight: 100
      
