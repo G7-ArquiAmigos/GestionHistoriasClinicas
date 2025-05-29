@@ -34,7 +34,7 @@ services:
     routes:
       - name: gestionPacientes
         paths:
-          - /gestionPacientes
+          - /
         strip_path: false
     plugins:
       - name: openid-connect
