@@ -35,10 +35,28 @@ services:
       - name: gestionPacientes
         paths:
           - /gestionPacientes
-        strip_path: false  
+        strip_path: false
+    plugins:
+      - name: openid-connect
+        config:
+          issuer: https://dev-znond25bgndcf8ju.us.auth0.com/
+          client_id: RBRPOt5I9W9zvqer4MyiNlARPvKVxbln
+          client_secret: xsV5A8yPsPW5ZOaGUrWMGQrBO3nKSLXMVwg0B7z2v7YjcIDky-gCDJx0_KBizHsU
+          scopes:
+            - openid
+            - profile
+            - email
+          redirect_uri: http://34.10.145.188:8000/callback
+          bearer_only: false
+          session_secret: "una-clave-secreta"
+          session_cookie_secure: false  # o true si usas HTTPS
+          login_redirect_uri: http://34.10.145.188:8000/gestionPacientes/home
+          user_info_header_name: X-Userinfo
+          user_info_headers_claims:
+            - name
+            - email
+            - https://dev-znond25bgndcf8ju.us.auth0.com/roles
 
-
-    
 upstreams:
   - name: evaluacionMedica_upstream
     targets:
@@ -56,29 +74,9 @@ upstreams:
         weight: 100
       - target: 10.128.0.87:8080
         weight: 100
+
   - name: gestionPacientes_upstream
     targets:
       - target: 10.128.0.88:8080
         weight: 100
-
-
-plugins:
-  - name: openid-connect
-    config:
-      issuer: https://dev-znond25bgndcf8ju.us.auth0.com.auth0.com/
-      client_id: RBRPOt5I9W9zvqer4MyiNlARPvKVxbln
-      client_secret: xsV5A8yPsPW5ZOaGUrWMGQrBO3nKSLXMVwg0B7z2v7YjcIDky-gCDJx0_KBizHsU
-      scopes:
-        - openid
-        - profile
-        - email
-      redirect_uri: http://34.10.145.188:8000/callback
-      bearer_only: false
-      session_secret: "una-clave-secreta"
-      login_redirect_uri: http://34.10.145.188:8000/gestionPacientes/home
-      user_info_header_name: X-Userinfo
-      user_info_headers_claims:
-        - name
-        - email
-        - https://dev-znond25bgndcf8ju.us.auth0.com/roles
 
